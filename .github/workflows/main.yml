@@ -34,10 +34,10 @@ jobs:
             password: ${{ secrets.PASSWORD }}
             port: ${{ secrets.PORT }}
             script: |
-                if [ ! -d "nodejs-automatyzacja" ]; then
+                if [ ! -d "cwiczenie_podsumowujace" ]; then
                     git clone git@github.com:Depokalakaier/cwiczenie_podsumowujace.git
                 else
-                    cd /var/www/cwiczenie_podsumowujace/cwiczenie-dockercompose
+                    cd /var/www/cwiczenie_podsumowujace/
                     git pull origin main
                 fi
                 sudo ansible-playbook -i Ansible/inventory.ini Ansible/playbook.yml
