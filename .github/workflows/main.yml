@@ -40,5 +40,5 @@ jobs:
                     cd /var/www/cwiczenie_podsumowujace/
                     git pull origin main
                 fi
-                sudo ansible-playbook -i Ansible/inventory.ini Ansible/playbook.yml
+                sudo ansible-playbook -i cwiczenie-dockercompose/Ansible/inventory.ini cwiczenie-dockercompose/Ansible/playbook.yml
 
