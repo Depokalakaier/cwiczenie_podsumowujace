@@ -1,0 +1,65 @@
+---
+- name: Deploy Node.js App with MongoDB using Docker Compose
+  hosts: local
+  become: true
+ 
+  vars:
+    project_path: /home/kursant/nodeapp
+    app_user: kursant
+ 
+  tasks:
+    - name: Install Docker using official script
+      shell: |
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        sh get-docker.sh
+      args:
+        creates: /usr/bin/docker
+ 
+    - name: Install Docker Compose plugin
+      apt:
+        name: docker-compose-plugin
+        state: present
+        update_cache: yes
+ 
+    - name: Add user to docker group
+      user:
+        name: "{{ app_user }}"
+        groups: docker
+        append: yes
+ 
+    - name: Create project directory
+      file:
+        path: "{{ project_path }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: "0755"
+ 
+    - name: Copy project files to target directory (ignoring unnecessary files)
+      synchronize:
+        src: "../"
+        dest: "{{ project_path }}"
+        rsync_opts:
+          - "--exclude=.git"
+          - "--exclude=node_modules"
+          - "--exclude=*.log"
+        recursive: yes
+        delete: no
+ 
+    - name: Check if port 27017 is in use
+      shell: "docker ps --format '{{ '{{.ID}} {{.Ports}}' }}' | grep 27017 | awk '{print $1}'"
+      register: mongo_container_check
+      changed_when: false
+      ignore_errors: true
+ 
+    - name: Stop and remove conflicting MongoDB container (if any)
+      shell: |
+        docker stop {{ mongo_container_check.stdout }} && docker rm {{ mongo_container_check.stdout }}
+      when: mongo_container_check.stdout != ""
+      ignore_errors: true
+ 
+    - name: Run Docker Compose
+      shell: docker compose up --build -d
+      args:
+        chdir: "{{ project_path }}"
+ 
