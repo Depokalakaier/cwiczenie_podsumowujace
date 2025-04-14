@@ -35,11 +35,10 @@ jobs:
             port: ${{ secrets.PORT }}
             script: |
                 if [ ! -d "nodejs-automatyzacja" ]; then
-                    git clone git@github.com:adrianflak/nodejs-automatyzacja.git
+                    git clone git@github.com:Depokalakaier/cwiczenie_podsumowujace.git
                 else
-                    cd nodejs-automatyzacja
+                    cd /var/www/cwiczenie_podsumowujace/cwiczenie-dockercompose
                     git pull origin main
                 fi
-                cd nodejs-automatyzacja
-                npm install
+                sudo ansible-playbook -i inventory.ini playbook.yml
 
